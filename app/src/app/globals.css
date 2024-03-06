@@ -1,0 +1,17 @@
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: auto;
+  background: gray;
+  color: white;
+}
+
+form {
+  width: 50%;
+  margin: 1rem 0 1rem 0;
+  padding: 1rem;
+  border: solid 1px black;
+  border-radius: 10px;
+  background: silver;
+} 
