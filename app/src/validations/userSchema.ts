@@ -1,12 +1,12 @@
 import { z } from "zod";
 
-const genres = ["female", "male"] as const;
+const genres = ["Female", "Male"] as const;
 
 export type Genres = (typeof genres)[number];
 
 export const mappedGenres: {[key in Genres]: string} = {
-    male: "Masculino",
-    female: "Femenino",
+    Male: "Masculino",
+    Female: "Femenino",
 }
 
 export const userSchema = z.object({
@@ -20,12 +20,6 @@ export const userSchema = z.object({
     }),
   secondName: z
     .string()
-    .min(2, {
-      message: "El Segundo Nombre debe contener al menos 2 caracteres",
-    })
-    .max(100, {
-      message: "El Segundo Nombre contiene demasiados caracteres",
-    })
     .optional(),
   fatherLastName: z
     .string()
@@ -37,12 +31,6 @@ export const userSchema = z.object({
     }),
   motherLastName: z
     .string()
-    .min(2, {
-      message: "El Segundo Apellido debe contener al menos 2 caracteres",
-    })
-    .max(100, {
-      message: "El Segundo Apellido contiene demasiados caracteres",
-    })
     .optional(),
   email: z
     .string()
@@ -52,9 +40,6 @@ export const userSchema = z.object({
     .optional(),
   phone: z
     .string()
-    .min(6, {
-      message: "Password must be at least 6 characters long",
-    })
     .optional(),
   address: z
     .string()

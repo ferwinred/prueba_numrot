@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "odqiYVHe3TtaUm81uS0YD8Jm+7cdWVV4kUy3YHJ3GVE=",
+  "Source": "apiDotnet",
+  "BasePath": "_content/apiDotnet",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

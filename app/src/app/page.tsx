@@ -1,147 +1,143 @@
 "use client";
 
-import { useForm, SubmitHandler } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { userSchema, mappedGenres } from "@/validations/userSchema";
-
-type Inputs = {
-  firstName: string;
-  secondName: string;
-  fatherLastName: string;
-  motherLastName: string;
-  email: string;
-  phone: string;
-  address: string;
-  age: string;
-  genre: string;
-};
+import { useEffect, useState } from "react";
+import {
+  User,
+  useCountGenreQuery,
+  useFindMaxAgeQuery,
+  useGetAverageQuery,
+  useGetUsersQuery,
+} from "../toolkit/services/userApi";
+import Header from "./components/Header";
 
 function Home() {
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = useForm<Inputs>({
-    resolver: zodResolver(userSchema),
-  });
+  const { data, error, isLoading, isFetching } = useGetUsersQuery(null);
+  const { data: averageRes } = useGetAverageQuery(null);
+  const { data: maxAgeUser } = useFindMaxAgeQuery(null);
+  
+  const [average, setAverage] = useState(null);
+  const [totalMale, setTotalMale] = useState(null);
+  const [totalFemale, setTotalFemale] = useState(null);
+  const [currentData, setCurrentData] = useState<User[]>([]);
 
-  const genresOptions = Object.entries(mappedGenres).map(([key, value]) => (
-    <option value={key} key={key}>
-      {value}
-    </option>
-  ));
+  const { data: genresFilterFemale } = useCountGenreQuery({ genre: "Female" });
+  const { data: genresFilterMale } = useCountGenreQuery({ genre: "Male" });
 
-  console.log(errors);
 
-  const onSubmit: SubmitHandler<Inputs> = (data) => {
-    console.log(data);
+  useEffect(() => {
+    const info = data ? data : [];
+    setCurrentData(info);
+  }, [data]);
+
+  const handleAverage = () => {
+    setTotalFemale(null);
+    setTotalMale(null);
+
+    setAverage(averageRes.data);
+
   };
 
+  const handleFilter = (e: any) => {
+
+    setAverage(null);
+    setTotalFemale(null);
+    setTotalMale(null);
+
+
+    if (e.target.value === 'Age'){
+      setCurrentData([maxAgeUser]);
+      return;
+    }
+    if (e.target.value === 'Male'){
+      setCurrentData(genresFilterMale.userList);
+      return;
+    }
+
+    if (e.target.value === 'Female'){
+      setCurrentData(genresFilterFemale.userList);
+      return;
+    }
+
+    if (data) {
+      setCurrentData(data);
+    }
+
+    return;
+
+  };
+
+  const handleTotalF = () => {
+
+    setAverage(null);
+    setTotalMale(null);
+
+    setTotalFemale(genresFilterFemale.count);
+
+  }
+
+  const handleTotalM = () => {
+
+    setAverage(null);
+    setTotalFemale(null);
+    
+    setTotalMale(genresFilterMale.count);
+
+  }
+
   return (
-    <div className="d-flex justify-content-center">
-      <form className="" onSubmit={handleSubmit(onSubmit)}>
-        <div className="row g-5">
-          <div className="col-md-12 text-dark d-flex justify-content-center">
-            <h1 className="">REGISTRO</h1>
-          </div>
-          <div className="col-md-6">
-            <input
-              type="text"
-              id="firstName"
-              {...register("firstName")}
-              placeholder="Primer Nombre"
-              className="form-control"
-            />
-            {errors.firstName?.message && <p>{errors.firstName?.message}</p>}
-          </div>
-          <div className="col-md-6">
-            <input
-              type="text"
-              id="secondName"
-              {...register("secondName")}
-              placeholder="Segundo Nombre"
-              className="form-control"
-            />
-            {errors.secondName?.message && <p>{errors.secondName?.message}</p>}
-          </div>
-          <div className="col-md-6">
-            <input
-              type="text"
-              id="fatherLastName"
-              {...register("fatherLastName")}
-              placeholder="Primer Apellido"
-              className="form-control"
-            />
-            {errors.fatherLastName?.message && (
-              <p>{errors.fatherLastName?.message}</p>
+    <div className="container-fluid m-0 p-0">
+      <div>
+        <Header />
+      </div>
+      <div className="col-3 d-flex flex-row justify-content-end m-4">
+        <select
+          onChange={handleFilter}
+          className="form-select form-select-lg mb-1"
+        >
+          <option className="options" value="">Selecciona para filtrar</option>
+          <option className="options" value="Age">Mayor Edad</option>
+          <option className="options" value="Female">Mujer</option>
+          <option className="options" value="Male">Hombre</option>
+          <option className="options" value="All">Todos</option>
+        </select>
+      </div>
+      <div className="container d-flex flex-column justify-content-center align-items-center">
+        <h1 className="mb-4">Información de Usuarios</h1>
+        <div className="container mt-4">
+          <ul className="list-group">
+            {isLoading ? (
+              <p>Is Loading...</p>
+            ) : (
+              currentData?.map((user, i) => {
+                return (
+                  <li className="list-group-item" key={user.id}>{`${i + 1}. ${
+                    user.firstName
+                  } ${user.secondName ? user.secondName : ""} ${
+                    user.fatherLastName
+                  } ${user.motherLastName ? user.motherLastName : ""} / ${
+                    user.age
+                  } años / Correo: ${user.email}`}</li>
+                );
+              })
             )}
-          </div>
-          <div className="col-md-6">
-            <input
-              type="text"
-              id="motherLastName"
-              {...register("motherLastName")}
-              placeholder="Segundo Apellido"
-              className="form-control"
-            />
-            {errors.motherLastName?.message && (
-              <p>{errors.motherLastName?.message}</p>
-            )}
-          </div>
-          <div className="col-md-6">
-            <input
-              type="email"
-              id="email"
-              {...register("email")}
-              placeholder="Correo"
-              className="form-control"
-            />
-            {errors.email?.message && <p>{errors.email?.message}</p>}
-          </div>
-          <div className="col-md-6">
-            <input
-              type="text"
-              id="phone"
-              {...register("phone")}
-              placeholder="Teléfono"
-              className="form-control"
-            />
-            {errors.phone?.message && <p>{errors.phone?.message}</p>}
-          </div>
-          <div className="col-md-12">
-            <input
-              type="text"
-              id="address"
-              {...register("address")}
-              placeholder="Dirección"
-              className="form-control"
-            />
-            {errors.address?.message && <p>{errors.address?.message}</p>}
-          </div>
-          <div className="col-md-6">
-            <input
-              type="number"
-              id="age"
-              {...register("age")}
-              placeholder="Edad"
-              className="form-control"
-            />
-            {errors.age?.message && <p>{errors.age?.message}</p>}
-          </div>
-          <div className="col-md-6 d-flex flex-column">
-            <select id="genre" {...register("genre")} placeholder="Género" 
-              className="form-control">
-              <option value="" defaultChecked>Elige tu género</option>
-              {genresOptions}
-            </select>
-            {errors.genre?.message && <p>{errors.genre?.message}</p>}
-          </div>
+          </ul>
         </div>
-        <div className="col-12 d-md-flex justify-content-md-center">
-          <button type="submit" className="btn btn-dark hover:btn-light mt-3">Enviar</button>
+      </div>  
+      <div className="constainer d-flex flex-row justify-content-center">
+        <div className="constainer d-flex flex-column align-items-center">
+        <button className="btn btn-dark m-4" onClick={handleAverage}>
+            Promedio de Edades
+          </button>
+          <p>{average}</p>
         </div>
-      </form>
+        <div className="constainer d-flex flex-column align-items-center">
+        <button className="btn btn-dark m-4" onClick={handleTotalF}>Total Mujeres</button>
+        <p>{totalFemale}</p>
+        </div><div className="constainer d-flex flex-column align-items-center">
+        <button className="btn btn-dark m-4" onClick={handleTotalM}>Total Hombres</button>
+        <p>{totalMale}</p>
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-type User = {
+export type User = {
+  id: number;
   firstName: string;
   secondName: string;
   fatherLastName: string;
@@ -16,7 +17,7 @@ export const userApi = createApi({
   reducerPath: "server",
   refetchOnFocus: true, // when the window is refocused, refetch the data
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:8080/api/",
+    baseUrl: "http://localhost:5263/api/"
   }),
   endpoints: (builder) => ({
     createUser: builder.mutation<User, { body: User }>({
@@ -29,10 +30,16 @@ export const userApi = createApi({
     getUsers: builder.query<User[], null>({
       query: () => "users",
     }),
-    getUserById: builder.query<User, { id: string }>({
-      query: ({ id }) => `users/${id}`,
+    countGenre: builder.query<any, { genre: string }>({
+      query: ({ genre }) => `users/genre/${genre}`,
+    }),
+    getAverage: builder.query<any, null>({
+      query: () => `users/average`,
+    }),
+    findMaxAge: builder.query<any, null>({
+      query: () => `users/maxAge`,
     }),
   }),
 });
 
-export const { useGetUsersQuery, useGetUserByIdQuery } = userApi;
+export const { useGetUsersQuery, useCountGenreQuery, useCreateUserMutation, useFindMaxAgeQuery, useGetAverageQuery } = userApi;
